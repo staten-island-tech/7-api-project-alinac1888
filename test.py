@@ -17,14 +17,25 @@ def get():
         print("Error fetching data!")
         return None
     
-    data = response.json()
-    print(data)
+    # data = response.json()
+    # print(data)
 
-    return {
-        "name": data["name"],
-        "species": data["species"],
-        "personality": data["personality"],
-        "phrase": data["phrase"]
-            }
+    # return {
+    #     "name": data["name"],
+    #     "species": data["species"],
+    #     "personality": data["personality"],
+    #     "phrase": data["phrase"]
+    #         }
     
 get()
+
+import tkinter
+tk = tkinter
+
+window = tk.Tk()
+window.title("YAY")
+window.geometry("400x250")
+window.resizable(False, False)
+prompt = tk.Label(window, text="nahahahahahahhaah",
+font=("Times New Roman", 14))
+prompt.pack(pady=10)
