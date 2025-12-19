@@ -29,13 +29,13 @@ def get():
     
 get()
 
-import tkinter
-tk = tkinter
+class villager:
+    def _init_(self, name, inv, fishamoun, sea):
+        self.name = name
+        self.inv = inv
+        self.fishamoun = fishamoun
+        self.sea = sea
+        sea = 10
 
-window = tk.Tk()
-window.title("YAY")
-window.geometry("400x250")
-window.resizable(False, False)
-prompt = tk.Label(window, text="nahahahahahahhaah",
-font=("Times New Roman", 14))
-prompt.pack(pady=10)
+    def fishing():
+        
