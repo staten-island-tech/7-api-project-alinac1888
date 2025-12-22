@@ -17,25 +17,24 @@ def get():
         print("Error fetching data!")
         return None
     
-    # data = response.json()
-    # print(data)
+    data = response.json()
 
-    # return {
-    #     "name": data["name"],
-    #     "species": data["species"],
-    #     "personality": data["personality"],
-    #     "phrase": data["phrase"]
-    #         }
+    return {
+        "name": data["name"],
+        "species": data["species"],
+        "personality": data["personality"],
+        "phrase": data["phrase"]
+            }
     
-get()
-
 class villager:
-    def _init_(self, name, inv, fishamoun, sea):
-        self.name = name
-        self.inv = inv
-        self.fishamoun = fishamoun
-        self.sea = sea
+    def _init_(e, vill, inv, fishamoun, sea):
+        e.vill = vill
+        e.inv = inv
+        e.fishamoun = fishamoun
+        e.sea = sea
         sea = 10
 
-    def fishing():
-        
+    def start(e):
+        choice = input("what villager")
+        if choice == data["name"]:
+                
