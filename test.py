@@ -18,14 +18,14 @@ def get():
         return None
     
     data = response.json()
-
-    return {
+    params = {
         "name": data["name"],
         "species": data["species"],
         "personality": data["personality"],
         "phrase": data["phrase"]
             }
-    
+
+get()
 class villager:
     def _init_(e, vill, inv, fishamoun, sea):
         e.vill = vill
@@ -34,7 +34,7 @@ class villager:
         e.sea = sea
         sea = 10
 
-    def start(e):
+    def start(e, data):
         choice = input("what villager")
         if choice == data["name"]:
-                
+            
