@@ -4,7 +4,9 @@ headers = {
     "Accept-Version": "1.7.0"
 }
 import tkinter as tk
+from tkinter import messagebox
 import random
+from PIL import Image, ImageTk
 
 class villager:
     def __init__(e, inv, fishamoun):
@@ -44,22 +46,151 @@ class villager:
         elif star == "n":
             print("say y when ur ready")
             e.start()
+        else:
+            print("inavlid option")
+            e.start()
 
+    def choose_fish(e, fish, chances):
+        return random.choices(fish, weights=chances, k=1)[0]
+    
     def fishing(e):
         fish = ['tuna', 'salmon', 'sea bass', 'boot', 'squid', 'goldfish', 'red carp', 'fish poop', 'pike']
-        chances = [2, 1, 1, 0, 2, 1, 1, 0, 2000]
+        chances = [1, 3, 3, 5, 2, 4, 4, 5, 1]
         bigchoice = input("Fish? y/n").lower()
         while bigchoice == "y":
             if e.fish_amoun > 0:
-                catch = random.choice(fish)
-                print(f"You caught a {catch}!")
-                catch += e.fish_amoun
+                catch = e.choose_fish(fish, chances)
+                print(f"{e.vill} caught a {catch}!")
+                e.inv.append(catch)
+                e.fish_amoun -= 1
+            elif e.fish_amoun == 0:
+                print(f"{e.vill}'s line broke, here's all the fish you've caught: {e.inv}")
                 break
-            else:
-                print("your line broke")
+
+            bigchoice = input("Fish? y/n").lower()
         if bigchoice == "n":
             print("say y when ur ready")
             e.fishing()
+        else: 
+            print("invalid choice try again")
+            e.fishing()
 
-vill = villager([], 10)
-vill.start()
+# vill = villager([], 10)
+# vill.start()
+
+class FishingGame(tk.Tk):
+    def __init__(self, villager):
+        super().__init__()
+        self.villager = villager
+        self.title("Visual Fishing Game")
+        self.geometry("600x500")
+
+        tk.Label(self, text="Choose your villager:", font=("Arial", 14)).pack(pady=10)
+
+        self.villager_listbox = tk.Listbox(self)
+        self.villager_listbox.pack(pady=10, fill=tk.BOTH, expand=True)
+
+        self.start_button = tk.Button(self, text="Select Villager", command=self.choose_villager)
+        self.start_button.pack(pady=5)
+
+        self.canvas = tk.Canvas(self, width=500, height=300, bg="skyblue")
+        self.canvas.pack(pady=10)
+
+        # Draw water
+        self.canvas.create_rectangle(0, 200, 500, 300, fill="blue")
+
+        self.fish_button = tk.Button(self, text="Fish!", command=self.fish, state=tk.DISABLED)
+        self.fish_button.pack(pady=5)
+
+        self.status_label = tk.Label(self, text="", font=("Arial", 12))
+        self.status_label.pack(pady=10)
+
+        self.reset_button = tk.Button(self, text="Reset Game", command=self.reset_game)
+        self.reset_button.pack(pady=5)
+
+        self.villager_data = []
+        self.villager_img = None
+        self.fish_imgs = {}
+        self.villager_sprite = None
+        self.populate_villagers()
+
+    def populate_villagers(self):
+        """Fetch villagers from Nookipedia API"""
+        url = "https://api.nookipedia.com/villagers"
+        try:
+            response = requests.get(url, headers=HEADERS)
+            response.raise_for_status()
+            data = response.json()
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to fetch villagers: {e}")
+            self.destroy()
+            return
+
+        self.villager_data = data
+        for v in data:
+            self.villager_listbox.insert(tk.END, f"{v['name']} - {v['species']} - {v['personality']}")
+
+    def choose_villager(self):
+        selection = self.villager_listbox.curselection()
+        if not selection:
+            messagebox.showwarning("Warning", "Please select a villager")
+            return
+        index = selection[0]
+        chosen = self.villager_data[index]
+        self.villager.vill = chosen["name"]
+        self.villager.personality = chosen["personality"]
+
+        villager_img_file = "villager_placeholder.png"
+        img = Image.open(villager_img_file).resize((80, 80))
+        self.villager_img = ImageTk.PhotoImage(img)
+        if self.villager_sprite:
+            self.canvas.delete(self.villager_sprite)
+        self.villager_sprite = self.canvas.create_image(250, 180, image=self.villager_img)
+
+        self.status_label.config(
+            text=f"Villager: {self.villager.vill} ({self.villager.personality})\nFish left: {self.villager.fish_amoun}"
+        )
+        self.fish_button.config(state=tk.NORMAL)
+        messagebox.showinfo("Villager Chosen", f"You chose {self.villager.vill}!")
+
+    def fish(self):
+        if self.villager.fish_amoun > 0:
+            catch = self.villager.choose_fish()
+            self.villager.inv.append(catch)
+            self.villager.fish_amoun -= 1
+
+            fish_file = f"fish_{catch}.png" 
+            try:
+                fish_img = Image.open(fish_file).resize((50, 50))
+                fish_img = ImageTk.PhotoImage(fish_img)
+                self.fish_imgs[catch] = fish_img
+                fish_sprite = self.canvas.create_image(250, 250, image=fish_img)
+                self.canvas.after(500, lambda: self.canvas.delete(fish_sprite))
+            except:
+                pass
+
+            self.status_label.config(
+                text=f"{self.villager.vill} caught a {catch}!\nFish left: {self.villager.fish_amoun}"
+            )
+        else:
+            messagebox.showinfo(
+                "Line Broke",
+                f"{self.villager.vill}'s line broke!\nYou caught: {', '.join(self.villager.inv)}"
+            )
+            self.fish_button.config(state=tk.DISABLED)
+
+    def reset_game(self):
+        self.villager.inv.clear()
+        self.villager.fish_amoun = 10
+        self.villager.vill = None
+        self.villager.personality = None
+        self.status_label.config(text="")
+        self.fish_button.config(state=tk.DISABLED)
+        self.villager_listbox.selection_clear(0, tk.END)
+        if self.villager_sprite:
+            self.canvas.delete(self.villager_sprite)
+        messagebox.showinfo("Reset", "Game reset! Choose a new villager.")
+
+vill = villager(fishamoun=10)
+app = FishingGame(vill)
+app.mainloop()
