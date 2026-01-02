@@ -105,7 +105,6 @@ class FishingGame(tk.Tk):
         self.populate_villagers()
 
     def populate_villagers(self):
-        """Fetch villagers from Nookipedia API and fill the Listbox"""
         url = "https://api.nookipedia.com/villagers"
         try:
             response = requests.get(url, headers=headers)
