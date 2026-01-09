@@ -8,7 +8,7 @@ from tkinter import messagebox
 import random
 # from PIL import Image, ImageTk
 
-class villager:
+""" class villager:
     def __init__(e, inv, fishamoun):
         e.vill = None
         e.inv = inv
@@ -76,7 +76,7 @@ class villager:
             e.fishing()
 
 vill = villager([], 10)
-vill.start()
+vill.start() """
 
 # class Villager:
 #     def __init__(self, fishamoun=10):
